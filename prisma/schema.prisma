@@ -30,3 +30,23 @@ enum Role {
   USER
   ADMIN
 }
+
+// product  schema
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Int
+  stock       Int
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+// category
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  Product     Product[]
+}
