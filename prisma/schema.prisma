@@ -39,6 +39,7 @@ model Product {
   description String
   price       Int
   stock       Int
+  image       String // store image URL
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id])
 }
