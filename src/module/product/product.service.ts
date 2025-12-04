@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { FindproductQueryDto } from './dto/findproduct.dto';
 
 @Injectable()
 export class ProductService {
@@ -75,10 +76,37 @@ export class ProductService {
     }
   }
 
-  async findAll() {
-    const products = await this.prisma.product.findMany();
+  async findAll(query: FindproductQueryDto) {
+    const take = query.limit ? Number(query.limit) : 10;
+    const page = query.page ? Number(query.page) : 1;
+    const skip = (page - 1) * take;
+    const search = query.search;
+
+    // build filter
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { description: { contains: search } },
+      ];
+    }
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        take,
+        skip,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
     return {
       data: products,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / take),
+        limit: take,
+      },
     };
   }
 }
