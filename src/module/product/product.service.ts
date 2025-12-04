@@ -8,16 +8,15 @@ import { FindproductQueryDto } from './dto/findproduct.dto';
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async createProduct(product: CreateProductDto) {
+  async createProduct(dto: CreateProductDto, imageUrl: string) {
     try {
-      await this.prisma.product.create({
-        data: product,
+      return await this.prisma.product.create({
+        data: {
+          ...dto,
+          image: imageUrl, // store image URL in DB
+        },
       });
-
-      return {
-        message: 'Product added successfully',
-      };
-    } catch (e) {
+    } catch (error) {
       throw new HttpException(
         'Failed to create product',
         HttpStatus.INTERNAL_SERVER_ERROR,
